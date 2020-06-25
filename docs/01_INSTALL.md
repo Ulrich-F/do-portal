@@ -24,7 +24,7 @@ git clone https://github.com/certat/do-portal.git
 cd /home/cert/do-portal/backend
 ```
 
-Create config file and save as `backend/config.cfg`  
+Create config file and save as `backend/config.cfg`
 cp backend/config.cfg.example backend/config.cfg
 
 ```bash
@@ -62,9 +62,9 @@ python manage.py run -h 0.0.0.0 -p 8081
 cd /home/cert/do-portal/frontend
 ```
 
-Create configuration files  
-cp frontend/config/envs/devel.json.example frontend/config/envs/devel.json  
-cp frontend/config/envs/production.json.example frontend/config/envs/production.json  
+Create configuration files
+cp frontend/config/envs/devel.json.example frontend/config/envs/devel.json
+cp frontend/config/envs/production.json.example frontend/config/envs/production.json
 
 ```bash
 npm install
@@ -108,7 +108,7 @@ This is necessary for the reverse proxy running inside the docker network
 to send requests to the correct container.
 
 ## Login
-http://portal-frontend:8081  
+http://portal-frontend:8081
 email/password for the login can be found in `backend/install/master_user.yaml`
 
 ## Run ui-tests
@@ -116,3 +116,32 @@ email/password for the login can be found in `backend/install/master_user.yaml`
 cd epplication
 bash test.sh
 ```
+
+## Test Data and Fixtures
+
+The docker image both installs necessary fixtures (like membership roles) and some structured test data.
+
+The data files are found in the `backend/install` directory:
+
+* `roles.yaml`: contains additional roles which will be appended to default roles defined in the code (see `MembershipRole.__insert_defaults` in `backend/app/models.py`).
+* `master_user.yaml`: contains an organization and user, which is the minimum data necessary to use the `do_portal` (run in the `docker_entrypoint.sh` file via `python3 manage.py insertmasteruser`).
+* `testdata.yaml`: contains several hierarchically structured organizations and users for testing (run in the `docker_entrypoint.sh` file via `python3 demodata.py addyaml`).
+
+### Data Structure
+The files are in the YAML format:
+
+```
+org:
+  - abbreviation: master
+    full_name: "MasterOrg"
+    display_name: "Master Org"
+user:
+  - name: master
+    org: master
+    role: OrgAdmin
+    comment: "Master User"
+    email: "master@master.master"
+    password: "Bla12345%"
+```
+
+The organization ("org") in the user section references to the organization's *abbreviation*.

@@ -47,6 +47,7 @@ def check_phonenumber(phonenumber):
             phonenumber = None
         else:
             x = phonenumbers.parse(phonenumber, None)
+            phonenumber = re.sub(r'\s+', '', phonenumber)
             m = re.search(r'^\+\d+$', phonenumber)
             if not m:
                 raise AttributeError(phonenumber, 'number has to start with a + and may only contain numbers')
@@ -2017,7 +2018,7 @@ class OrganizationMembership(Model, SerializerMixin):
         # doesnt handle it properly in web context   
         check_constraint =  OrganizationMembership.query.filter( \
                  OrganizationMembership.membership_role_id == \
-                            organization_membership_dict['membership_role_id'],
+                            check_role_id,
                  OrganizationMembership.organization_id == \
                             organization_membership_dict['organization_id'],
                  OrganizationMembership.user_id == \
@@ -2069,7 +2070,7 @@ def load_user(user_id):
 
     # print('inactive', last_active.total_seconds())
 
-    if last_active.total_seconds() > current_app.config['LOGOUT_INACTIVE_SECONDS']:
+    if last_active.total_seconds() > current_app.config['LOGOUT_INACTIVE_SECONDS'] + 60:
         user.login_timestamp = None
         db.session.add(user)
         db.session.commit()
